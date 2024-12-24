@@ -6,6 +6,7 @@
 from __future__ import unicode_literals
 
 import os.path
+import codecs
 from time import strftime
 
 from .utils import (
@@ -34,15 +35,16 @@ class LogManager(object):
 
     """
 
-    LOG_FILENAME = "log"
+    LOG_FILENAME = "youtube_dl_gui.log"
     TIME_TEMPLATE = "[{time}] {error_msg}"
-    MAX_LOGSIZE = 524288  # Bytes
+    MAX_LOGSIZE = 5242880  # Bytes
 
     def __init__(self, config_path, add_time=False):
         self.config_path = config_path
         self.add_time = add_time
         self.log_file = os.path.join(config_path, self.LOG_FILENAME)
-        self._encoding = get_encoding()
+        self._encoding = 'utf-8'
+        # self._encoding = get_encoding()
         self._init_log()
         self._auto_clear_log()
 
@@ -79,13 +81,14 @@ class LogManager(object):
         """
         check_path(self.config_path)
 
-        with open(self.log_file, mode) as log:
+        with codecs.open(self.log_file, mode, encoding='utf-8') as log:
             if mode == 'a' and self.add_time:
                 msg = self.TIME_TEMPLATE.format(time=strftime('%c'), error_msg=data)
             else:
                 msg = data
 
-            log.write(msg.encode(self._encoding, 'ignore'))
+            log.write(msg)
+            # log.write(msg.encode(self._encoding, 'ignore'))
 
     def _init_log(self):
         """Initialize the log file if not exist. """

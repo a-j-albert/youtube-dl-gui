@@ -81,7 +81,11 @@ from .mainframe import MainFrame
 
 def main():
     """The real main. Creates and calls the main app windows. """
-    youtubedl_path = os.path.join(opt_manager.options["youtubedl_path"], YOUTUBEDL_BIN)
+    use_python_source = opt_manager.options["youtube_dl_uses_source"]
+    youtubedl_path = (
+        opt_manager.options["youtubedl_python_path"] if use_python_source else 
+        os.path.join(opt_manager.options["youtubedl_path"], YOUTUBEDL_BIN)
+    )
 
     app = wx.App()
     frame = MainFrame(opt_manager, log_manager)

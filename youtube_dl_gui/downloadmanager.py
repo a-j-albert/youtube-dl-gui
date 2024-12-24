@@ -93,10 +93,12 @@ class DownloadItem(object):
     ERROR_STAGES = ("Error", "Stopped", "Filesize Abort")
 
     def __init__(self, url, options):
-        self.url = url
+        input = url.split()     # Allow for inputting stage after url (e.g. Completed)
+        self.url = input[0]
         self.options = options
         self.object_id = hash(url + to_string(options))
 
+        self._stage = input[1] if len(input) == 2 else "Queued"
         self.reset()
 
     @property
@@ -125,7 +127,7 @@ class DownloadItem(object):
         if hasattr(self, "_stage") and self._stage == self.STAGES[1]:
             raise RuntimeError("Cannot reset an 'Active' item")
 
-        self._stage = self.STAGES[0]
+        # self._stage = self.STAGES[0]
         self.path = ""
         self.filenames = []
         self.extensions = []
@@ -506,7 +508,8 @@ class DownloadManager(Thread):
 
     def _check_youtubedl(self):
         """Check if youtube-dl binary exists. If not try to download it. """
-        if not os_path_exists(self._youtubedl_path()) and self.parent.update_thread is None:
+        use_python_source = self.opt_manager.options["youtube_dl_uses_source"]
+        if not use_python_source and not os_path_exists(self._youtubedl_path()) and self.parent.update_thread is None:
             self.parent.update_thread = UpdateThread(self.opt_manager.options['youtubedl_path'], True)
             self.parent.update_thread.join()
             self.parent.update_thread = None
@@ -528,8 +531,11 @@ class DownloadManager(Thread):
 
     def _youtubedl_path(self):
         """Returns the path to youtube-dl binary. """
-        path = self.opt_manager.options['youtubedl_path']
-        path = os.path.join(path, YOUTUBEDL_BIN)
+        use_python_source = self.opt_manager.options["youtube_dl_uses_source"]
+        path = (
+            self.opt_manager.options["youtubedl_python_path"] if use_python_source else 
+            os.path.join(self.opt_manager.options["youtubedl_path"], YOUTUBEDL_BIN)
+        )
         return path
 
 
@@ -597,7 +603,8 @@ class Worker(Thread):
         while self._running:
             if self._data['url'] is not None:
                 #options = self._options_parser.parse(self.opt_manager.options)
-                ret_code = self._downloader.download(self._data['url'], self._options)
+                use_python_source = self.opt_manager.options["youtube_dl_uses_source"]
+                ret_code = self._downloader.download(self._data['url'], self._options, use_python_source)
 
                 if (ret_code == YoutubeDLDownloader.OK or
                         ret_code == YoutubeDLDownloader.ALREADY or

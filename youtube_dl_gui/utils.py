@@ -124,7 +124,7 @@ if os.name == 'nt':
     os_startfile = convert_on_bounds(os.startfile)
 
 def remove_file(filename):
-    if os_path_exists(filename):
+    if os.path.exists(filename):
         os.remove(filename)
         return True
 
@@ -149,11 +149,11 @@ def open_file(file_path):
     """
     file_path = remove_shortcuts(file_path)
 
-    if not os_path_exists(file_path):
+    if not os.path.exists(file_path):
         return False
 
     if os.name == "nt":
-        os_startfile(file_path)
+        os.startfile(file_path)
     else:
         subprocess.call(("xdg-open", file_path))
 
@@ -173,7 +173,7 @@ def decode_tuple(encoded_tuple):
 
 def check_path(path):
     """Create path if not exist. """
-    if not os_path_exists(path):
+    if not os.path.exists(path):
         os_makedirs(path)
 
 

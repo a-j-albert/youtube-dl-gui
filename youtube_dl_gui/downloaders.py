@@ -137,7 +137,7 @@ class YoutubeDLDownloader(object):
         self._stderr_queue = Queue()
         self._stderr_reader = PipeReader(self._stderr_queue)
 
-    def download(self, url, options):
+    def download(self, url, options, use_python_source):
         """Download url using given options.
 
         Args:
@@ -159,7 +159,7 @@ class YoutubeDLDownloader(object):
         """
         self._return_code = self.OK
 
-        cmd = self._get_cmd(url, options)
+        cmd = self._get_cmd(url, options, use_python_source)
         self._create_process(cmd)
 
         if self._proc is not None:
@@ -167,24 +167,37 @@ class YoutubeDLDownloader(object):
 
         while self._proc_is_alive():
             stdout = self._proc.stdout.readline().rstrip()
-            stdout = convert_item(stdout, to_unicode=True)
+            stdout = stdout.decode('UTF-8', 'ignore')
+            # stdout = convert_item(stdout, to_unicode=True)
 
             if stdout:
                 data_dict = extract_data(stdout)
-                self._extract_info(data_dict)
+                stdout2 = stdout.split()
+                if len(stdout2) == 4 and stdout2[1] == '100%': # Only happens when file already exists
+                    # import pdb; pdb.set_trace()
+                    self._set_returncode(self.ALREADY)
+                # self._extract_info(data_dict)
                 self._hook_data(data_dict)
 
         # Read stderr after download process has been completed
         # We don't need to read stderr in real time
         while not self._stderr_queue.empty():
-            stderr = self._stderr_queue.get_nowait().rstrip()
-            stderr = convert_item(stderr, to_unicode=True)
+            stderr0 = self._stderr_queue.get_nowait().rstrip()
+            # print(type(stderr0))
+            stderr = stderr0.decode('UTF-8', 'ignore')
+            # stderr = convert_item(stderr, to_unicode=True)
+            # import pdb; pdb.set_trace()
 
             self._log(stderr)
+            # import pdb; pdb.set_trace()
+            # print(type(stderr))
+            # print(type(stderr.decode('utf8', 'ignore')))
+            # print(stderr.decode('utf8', 'ignore'))
+            print(stderr)
 
             if self._is_warning(stderr):
                 self._set_returncode(self.WARNING)
-            else:
+            elif self._is_error(stderr):
                 self._set_returncode(self.ERROR)
 
         # Set return code to ERROR if we could not start the download process
@@ -233,12 +246,16 @@ class YoutubeDLDownloader(object):
         if code >= self._return_code:
             self._return_code = code
 
+    def _is_error(self, stderr):
+        return stderr.split(':')[0] == 'ERROR'
+
     def _is_warning(self, stderr):
         return stderr.split(':')[0] == 'WARNING'
 
     def _last_data_hook(self):
         """Set the last data information based on the return code. """
         data_dictionary = {}
+        # import pdb; pdb.set_trace()
 
         if self._return_code == self.OK:
             data_dictionary['status'] = 'Finished'
@@ -300,7 +317,7 @@ class YoutubeDLDownloader(object):
 
         return self._proc.poll() is None
 
-    def _get_cmd(self, url, options):
+    def _get_cmd(self, url, options, use_python_source):
         """Build the subprocess command.
 
         Args:
@@ -311,10 +328,15 @@ class YoutubeDLDownloader(object):
             Python list that contains the command to execute.
 
         """
-        if os.name == 'nt':
+        if os.name == 'nt' and not use_python_source:
             cmd = [self.youtubedl_path] + options + [url]
         else:
-            cmd = ['python', self.youtubedl_path] + options + [url]
+            # cmd = ['python_debug', self.youtubedl_path] + options + [url]
+            # cmd = ['C:\\Users\\aalbe\\Anaconda3\\python.exe', self.youtubedl_path] + options + [url]
+            # cmd = ['C:\\Users\\aalbe\\miniconda3\\envs\\py39\\python.exe', self.youtubedl_path] + options + [url]
+            # cmd = ['C:\\Users\\aalbe\\miniconda3\\envs\\py3104\\python.exe', self.youtubedl_path] + options + [url]
+            # cmd = ['C:\\Users\\aalbe\\miniconda3\\envs\\py3119\\python.exe', self.youtubedl_path] + options + [url]
+            cmd = ['C:\\Users\\aalbe\\miniconda3\\envs\\py3130\\python.exe', self.youtubedl_path] + options + [url]
 
         return cmd
 
@@ -344,12 +366,35 @@ class YoutubeDLDownloader(object):
         if sys.version_info < (3, 0):
             cmd = convert_item(cmd, to_unicode=False)
 
+        new_env = os.environ.copy()
+        #new_env["PATH"] = os.pathsep.join(
+        #    ["C:\\Users\\aalbe\\miniconda3\\envs\\py3104;C:\\Users\\aalbe\\miniconda3\\envs\\py3104\\Library\\mingw-w64\\bin;"
+        #     "C:\\Users\\aalbe\\miniconda3\\envs\\py3104\\Library\\usr\\bin;C:\\Users\\aalbe\\miniconda3\\envs\\py3104\\Library\\bin;"
+        #     "C:\\Users\\aalbe\\miniconda3\\envs\\py3104\\Scripts;C:\\Users\\aalbe\\miniconda3\\envs\\py3104\\bin;"
+        #     "C:\\Users\\aalbe\\miniconda3\\condabin",
+        #     new_env["PATH"]])
+        #print(new_env["PATH"])
+        # new_env['CONDA_DEFAULT_ENV']='py3104'
+        #new_env['CONDA_EXE']='C:\\Users\\aalbe\\miniconda3\\Scripts\\conda.exe'
+        #new_env['CONDA_PREFIX']='C:\\Users\\aalbe\\miniconda3\\envs\\py3104'
+        #new_env['CONDA_PROMPT_MODIFIER']='(py3104)'
+        #new_env['CONDA_PYTHON_EXE']='C:\\Users\\aalbe\\miniconda3\\python.exe'
+        #new_env['CONDA_SHLVL']='1'
+        new_env['pythonpath'.encode('ascii','ignore')]=''.encode('ascii','ignore')
+        # import pdb; pdb.set_trace()
+        # self._log(new_env)
+
         try:
             self._proc = subprocess.Popen(cmd,
                                           stdout=subprocess.PIPE,
                                           stderr=subprocess.PIPE,
                                           preexec_fn=preexec,
-                                          startupinfo=info)
+                                          startupinfo=info,
+                                          env=new_env,
+                                          # cwd='C:\\Downloads\\youtube-dl\\',
+                                          cwd='C:\\github\\youtube-dl\\'
+                                          )
+
         except (ValueError, OSError) as error:
             self._log('Failed to start process: {}'.format(ucmd))
             self._log(convert_item(str(error), to_unicode=True))
@@ -396,9 +441,11 @@ def extract_data(stdout):
     stdout_with_spaces = stdout.split(' ')
     stdout = stdout.split()
 
+    print(stdout)
     stdout[0] = stdout[0].lstrip('\r')
 
     if stdout[0] == '[download]':
+        # import pdb; pdb.set_trace()
         data_dictionary['status'] = 'Downloading'
 
         # Get path, filename & extension
@@ -411,7 +458,9 @@ def extract_data(stdout):
 
         # Get progress info
         if '%' in stdout[1]:
-            if stdout[1] == '100%':
+            # import pdb; pdb.set_trace()
+            if stdout[1] == '100%': 
+                # import pdb; pdb.set_trace()
                 data_dictionary['speed'] = ''
                 data_dictionary['eta'] = ''
                 data_dictionary['percent'] = '100%'
@@ -426,6 +475,13 @@ def extract_data(stdout):
         if stdout[1] == 'Downloading' and stdout[2] == 'video':
             data_dictionary['playlist_index'] = stdout[3]
             data_dictionary['playlist_size'] = stdout[5]
+            data_dictionary['eta'] = "-"
+            data_dictionary['percent'] = "-"
+            data_dictionary['extension'] = "-"
+            data_dictionary['filesize'] = "-"
+            data_dictionary['path'] = ''
+            data_dictionary['filename'] = ' '.join(stdout_with_spaces[6:])
+            data_dictionary['extension'] = '-'
 
         # Remove the 'and merged' part from stdout when using ffmpeg to merge the formats
         if stdout[-3] == 'downloaded' and stdout [-1] == 'merged':
@@ -434,14 +490,15 @@ def extract_data(stdout):
 
             data_dictionary['percent'] = '100%'
 
-        # Get file already downloaded status
-        if stdout[-1] == 'downloaded':
-            data_dictionary['status'] = 'Already Downloaded'
-            path, filename, extension = extract_filename(' '.join(stdout_with_spaces[1:-4]))
+        # I fixed this, but I prefer it the way it was - the file path is in the "Title" column so you can click on it
+        ## Get file already downloaded status
+        #if stdout[-1] == 'archive':
+        #    data_dictionary['status'] = 'Already Downloaded'
+        #    path, filename, extension = extract_filename(' '.join(stdout_with_spaces[1:-4]))
 
-            data_dictionary['path'] = path
-            data_dictionary['filename'] = filename
-            data_dictionary['extension'] = extension
+        #    data_dictionary['path'] = path
+        #    data_dictionary['filename'] = filename
+        #    data_dictionary['extension'] = extension
 
         # Get filesize abort status
         if stdout[-1] == 'Aborting.':
@@ -462,6 +519,11 @@ def extract_data(stdout):
 
     elif stdout[0] == '[ffmpeg]':
         data_dictionary['status'] = 'Post Processing'
+
+        # Get final size
+        if stdout[1] == 'Size':
+            data_dictionary['filesize'] = stdout[2]
+            data_dictionary['percent'] = '100%'
 
         # Get final extension after merging process
         if stdout[1] == 'Merging':
@@ -491,6 +553,8 @@ def extract_data(stdout):
         pass  # Just ignore this output
 
     else:
+        # import pdb; pdb.set_trace()
+        # print('Unrecognized stdout: ' + stdout_with_spaces)
         data_dictionary['status'] = 'Pre Processing'
 
     return data_dictionary

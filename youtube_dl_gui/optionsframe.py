@@ -322,6 +322,7 @@ class GeneralTab(TabPanel):
         self.confirm_exit_checkbox = self.crt_checkbox(_("Confirm on exit"))
         self.confirm_deletion_checkbox = self.crt_checkbox(_("Confirm item deletion"))
         self.show_completion_popup_checkbox = self.crt_checkbox(_("Inform me on download completion"))
+        self.youtube_dl_uses_source_checkbox = self.crt_checkbox(_("Run youtube-dl using source"))
 
         self.shutdown_checkbox = self.crt_checkbox(_("Shutdown on download completion"), event_handler=self._on_shutdown)
         self.sudo_textctrl = self.crt_textctrl(wx.TE_PASSWORD)
@@ -360,6 +361,7 @@ class GeneralTab(TabPanel):
         vertical_sizer.Add(self.confirm_exit_checkbox, flag=wx.ALL, border=5)
         vertical_sizer.Add(self.confirm_deletion_checkbox, flag=wx.LEFT | wx.RIGHT | wx.BOTTOM, border=5)
         vertical_sizer.Add(self.show_completion_popup_checkbox, flag=wx.LEFT | wx.RIGHT | wx.BOTTOM, border=5)
+        vertical_sizer.Add(self.youtube_dl_uses_source_checkbox, flag=wx.LEFT | wx.RIGHT | wx.BOTTOM, border=5)
 
         shutdown_sizer = wx.BoxSizer(wx.HORIZONTAL)
         shutdown_sizer.Add(self.shutdown_checkbox)
@@ -437,6 +439,8 @@ class GeneralTab(TabPanel):
         self.sudo_textctrl.SetValue(self.opt_manager.options["sudo_password"])
         self.confirm_exit_checkbox.SetValue(self.opt_manager.options["confirm_exit"])
         self.show_completion_popup_checkbox.SetValue(self.opt_manager.options["show_completion_popup"])
+        self.youtube_dl_uses_source_checkbox.SetValue(self.opt_manager.options["youtube_dl_uses_source"])
+        
         self.confirm_deletion_checkbox.SetValue(self.opt_manager.options["confirm_deletion"])
 
         #REFACTOR Automatically call on the new methods
@@ -455,6 +459,7 @@ class GeneralTab(TabPanel):
         self.opt_manager.options["sudo_password"] = self.sudo_textctrl.GetValue()
         self.opt_manager.options["confirm_exit"] = self.confirm_exit_checkbox.GetValue()
         self.opt_manager.options["show_completion_popup"] = self.show_completion_popup_checkbox.GetValue()
+        self.opt_manager.options["youtube_dl_uses_source"] = self.youtube_dl_uses_source_checkbox.GetValue()        
         self.opt_manager.options["confirm_deletion"] = self.confirm_deletion_checkbox.GetValue()
 
 

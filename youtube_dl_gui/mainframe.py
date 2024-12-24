@@ -7,6 +7,13 @@ from __future__ import unicode_literals
 
 import os
 import gettext
+import subprocess
+import win_subprocess
+
+import sys
+import codecs
+sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+sys.stderr = codecs.getwriter('utf8')(sys.stderr)
 
 import wx
 from wx.lib.pubsub import setuparg1 #NOTE Should remove deprecated
@@ -236,6 +243,7 @@ class MainFrame(wx.Frame):
             (_("Get command"), self._on_getcmd),
             (_("Open destination"), self._on_open_dest),
             (_("Re-enter"), self._on_reenter)
+            # (_("Rename"), self._on_rename)
         )
 
         # Create options frame
@@ -292,6 +300,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU_HIGHLIGHT, lambda event: None)
 
         # Bind extra events
+        self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_play, self._status_list)
         self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self._on_statuslist_right_click, self._status_list)
         self.Bind(wx.EVT_TEXT, self._update_savepath, self._path_combobox)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._update_pause_button, self._status_list)
@@ -334,21 +343,20 @@ class MainFrame(wx.Frame):
     def _on_statuslist_right_click(self, event):
         selected = event.GetIndex()
 
-        if selected != -1:
-            self._status_list.deselect_all()
-            self._status_list.Select(selected, on=1)
+        # if selected != -1:
+            # self._status_list.deselect_all()
+            # self._status_list.Select(selected, on=1)
 
-            self.PopupMenu(self._statuslist_menu)
+        self.PopupMenu(self._statuslist_menu)
 
-    def _on_reenter(self, event):
-        selected = self._status_list.get_selected()
-
-        if selected != -1:
-            object_id = self._status_list.GetItemData(selected)
+    def reenter_one(self, selected_row, rows_to_remove):
+        if selected_row != -1:
+            object_id = self._status_list.GetItemData(selected_row)
             download_item = self._download_list.get_item(object_id)
 
             if download_item.stage != "Active":
-                self._status_list.remove_row(selected)
+                # self._status_list.remove_row(selected_row)
+                rows_to_remove.append(selected_row)
                 self._download_list.remove(object_id)
 
                 options = self._options_parser.parse(self.opt_manager.options)
@@ -360,36 +368,67 @@ class MainFrame(wx.Frame):
                     self._status_list.bind_item(download_item)
                     self._download_list.insert(download_item)
 
+    def _on_reenter(self, event):
+        selected_rows = self._status_list.get_all_selected()
+
+        rows_to_remove = []
+        if selected_rows:
+            for selected_row in selected_rows:
+                self.reenter_one(selected_row, rows_to_remove)
+        rows_to_remove.reverse()
+        for row_to_remove in rows_to_remove:
+            self._status_list.remove_row(row_to_remove)
+
+    #def _on_rename(self, event):
+    #    selected_rows = self._status_list.get_all_selected()
+
+    #    rows_to_remove = []
+    #    if selected_rows:
+    #        for selected_row in selected_rows:
+    #            self.reenter_one(selected_row, rows_to_remove)
+    #    rows_to_remove.reverse()
+    #    for row_to_remove in rows_to_remove:
+    #        self._status_list.remove_row(row_to_remove)
+
     def reset(self):
         self._update_videoformat_combobox()
         self._path_combobox.LoadMultiple(self.opt_manager.options["save_path_dirs"])
         self._path_combobox.SetValue(self.opt_manager.options["save_path"])
 
     def _on_open_dest(self, event):
+        # breakpoint()
         selected = self._status_list.get_selected()
 
         if selected != -1:
             object_id = self._status_list.GetItemData(selected)
             download_item = self._download_list.get_item(object_id)
 
-            if download_item.path:
-                open_file(download_item.path)
+            if download_item.path and download_item.filenames and download_item.extensions:
+                path = '"' + download_item.path + '\\' + download_item.filenames[-1] + download_item.extensions[-1] + '"'
+                win_subprocess.Popen(r'explorer /select, ' + path)
+                # open_file(download_item.path)
 
     def _on_open_path(self, event):
         open_file(self._path_combobox.GetValue())
 
     def _on_geturl(self, event):
-        selected = self._status_list.get_selected()
+        item = -1
+        urls = ''
+        while 1:
+            item = self._status_list.GetNextItem(item,
+                                wx.LIST_NEXT_ALL,
+                                wx.LIST_STATE_SELECTED)
+            if item == -1:
+                break
 
-        if selected != -1:
-            object_id = self._status_list.GetItemData(selected)
+            object_id = self._status_list.GetItemData(item)
             download_item = self._download_list.get_item(object_id)
 
-            url = download_item.url
+            urls += '\n' + download_item.url + ' ' + download_item.stage
 
-            if not wx.TheClipboard.IsOpened():
+        if not wx.TheClipboard.IsOpened():
                 clipdata = wx.TextDataObject()
-                clipdata.SetText(url)
+                clipdata.SetText(urls)
                 wx.TheClipboard.Open()
                 wx.TheClipboard.SetData(clipdata)
                 wx.TheClipboard.Close()
@@ -421,7 +460,8 @@ class MainFrame(wx.Frame):
                 paused += 1
             if item.stage == "Active":
                 active += 1
-                total_percentage += float(item.progress_stats["percent"].split('%')[0])
+                pct_str = item.progress_stats["percent"]
+                total_percentage += 0.0 if pct_str == '-' else float(pct_str.split('%')[0])
             if item.stage == "Completed":
                 completed += 1
             if item.stage == "Error":
