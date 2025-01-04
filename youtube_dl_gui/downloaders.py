@@ -181,6 +181,7 @@ class YoutubeDLDownloader(object):
 
         # Read stderr after download process has been completed
         # We don't need to read stderr in real time
+        print('stderr')
         while not self._stderr_queue.empty():
             stderr0 = self._stderr_queue.get_nowait().rstrip()
             # print(type(stderr0))
@@ -439,8 +440,11 @@ def extract_data(stdout):
     # multiple whitespaces correctly. We also keep a copy of the old
     # 'stdout' for backward compatibility with the old code
     stdout_with_spaces = stdout.split(' ')
+    # print('raw stdout')
+    # print(stdout)
     stdout = stdout.split()
 
+    # print('stdout')
     print(stdout)
     stdout[0] = stdout[0].lstrip('\r')
 
