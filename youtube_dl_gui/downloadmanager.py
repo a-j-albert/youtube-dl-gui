@@ -204,7 +204,8 @@ class DownloadItem(object):
             # If we are post processing try to calculate the size of
             # the output file since youtube-dl does not
             if stats_dict["status"] == self.ACTIVE_STAGES[2] and len(self.filesizes) == 2:
-                post_proc_filesize = self.filesizes[0] + self.filesizes[1]
+                # post_proc_filesize = self.filesizes[0] + self.filesizes[1]
+                post_proc_filesize = self.filesizes[1] # Fixed in youtube_dl
 
                 self.filesizes.append(post_proc_filesize)
                 self.progress_stats["filesize"] = format_bytes(post_proc_filesize)
