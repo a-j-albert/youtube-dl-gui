@@ -556,6 +556,12 @@ def extract_data(stdout):
     elif stdout[0][0] != '[' or stdout[0] == '[debug]':
         pass  # Just ignore this output
 
+    elif stdout[0] == '[info]':
+        data_dictionary['status'] = 'Post Processing'
+    elif stdout[0] == '[Metadata]':
+        data_dictionary['status'] = 'Post Processing'
+    elif stdout[0] == '[EmbedSubtitle]':
+        data_dictionary['status'] = 'Post Processing'
     else:
         # import pdb; pdb.set_trace()
         # print('Unrecognized stdout: ' + stdout_with_spaces)
