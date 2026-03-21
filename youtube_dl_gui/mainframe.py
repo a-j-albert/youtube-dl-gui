@@ -611,7 +611,14 @@ class MainFrame(wx.Frame):
                 object_id = self._status_list.GetItemData(selected_row)
                 selected_download_item = self._download_list.get_item(object_id)
 
-                if selected_download_item.stage == "Completed":
+                pct_str = selected_download_item.progress_stats.get("percent")
+                total_percentage = 0.0
+                if pct_str:
+                    total_percentage += 0.0 if pct_str == '-' else float(pct_str.split('%')[0])
+                    # print(total_percentage)
+                if selected_download_item.stage == "Completed" or total_percentage > 0:
+                    # print('About to open selected_download_item')
+                    # import pdb; pdb.set_trace()
                     if selected_download_item.filenames:
                         filename = selected_download_item.get_files()[-1]
                         open_file(filename)
