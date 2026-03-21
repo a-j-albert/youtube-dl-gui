@@ -164,6 +164,7 @@ class DownloadItem(object):
         """Updates the progress_stats dict from the given dictionary."""
         assert isinstance(stats_dict, dict)
 
+        # import pdb; pdb.set_trace()
         for key in stats_dict:
             if key in self.progress_stats:
                 value = stats_dict[key]
