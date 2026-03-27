@@ -557,7 +557,8 @@ def extract_data(stdout):
         pass  # Just ignore this output
 
     elif stdout[0] == '[info]':
-        data_dictionary['status'] = 'Post Processing'
+        # data_dictionary['status'] = 'Post Processing'
+        pass
     elif stdout[0] == '[Metadata]':
         data_dictionary['status'] = 'Post Processing'
     elif stdout[0] == '[EmbedSubtitle]':
