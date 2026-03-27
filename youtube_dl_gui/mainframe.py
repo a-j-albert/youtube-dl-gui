@@ -621,6 +621,9 @@ class MainFrame(wx.Frame):
                     # import pdb; pdb.set_trace()
                     if selected_download_item.filenames:
                         filename = selected_download_item.get_files()[-1]
+                        if not selected_download_item.stage == "Completed":
+                            filename += '.part'
+                        # print(('filename to open: ' + filename))
                         open_file(filename)
                 else:
                     self._create_popup(_("Item is not completed"), self.INFO_LABEL, wx.OK | wx.ICON_INFORMATION)
@@ -643,6 +646,8 @@ class MainFrame(wx.Frame):
                     self._status_list._update_from_item(new_index, download_item)
 
                 index = self._status_list.get_next_selected(index)
+        # else:
+            # import pdb; pdb.set_trace()
 
     def _on_arrow_down(self, event):
         index = self._status_list.get_next_selected(reverse=True)
