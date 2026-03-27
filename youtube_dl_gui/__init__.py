@@ -95,4 +95,9 @@ def main():
         wx.MessageBox(_("Failed to locate youtube-dl and updates are disabled"), _("Error"), wx.OK | wx.ICON_ERROR)
         frame.close()
 
-    app.MainLoop()
+    try:
+        print('Entering app.MainLoop()')
+        app.MainLoop()
+    except KeyboardInterrupt:
+        print('Exiting on user request')
+        import pdb; pdb.set_trace()

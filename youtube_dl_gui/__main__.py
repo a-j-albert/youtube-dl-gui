@@ -36,4 +36,9 @@ import youtube_dl_gui
 
 
 if __name__ == '__main__':
-    youtube_dl_gui.main()
+    try:
+        print('Just before main()')
+        youtube_dl_gui.main()
+    except KeyboardInterrupt:
+        print('Exiting on user request')
+        import pdb; pdb.set_trace()
