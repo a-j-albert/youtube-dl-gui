@@ -195,6 +195,7 @@ class YoutubeDLDownloader(object):
             # print(type(stderr.decode('utf8', 'ignore')))
             # print(stderr.decode('utf8', 'ignore'))
             print(stderr)
+            # import pdb; pdb.set_trace()
 
             if self._is_warning(stderr):
                 self._set_returncode(self.WARNING)
@@ -439,13 +440,14 @@ def extract_data(stdout):
     # We want to keep the spaces in order to extract filenames with
     # multiple whitespaces correctly. We also keep a copy of the old
     # 'stdout' for backward compatibility with the old code
+    print(stdout)
     stdout_with_spaces = stdout.split(' ')
-    # print('raw stdout')
-    # print(stdout)
+    # for comp in stdout_with_spaces:
+    #     print(comp),
+    # print('')
     stdout = stdout.split()
 
-    # print('stdout')
-    print(stdout)
+    # import pdb; pdb.set_trace()
     stdout[0] = stdout[0].lstrip('\r')
 
     if stdout[0] == '[download]':
