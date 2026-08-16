@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{57af63d7-03e1-4aa0-bcc6-f73e88260f5f}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>__main__.pyw</StartupFile>
+    <SearchPath>..\..\Python27\Lib\site-packages\wx-3.0-msw;..\..\ProgramData\Anaconda3\Lib\site-packages</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <IsWindowsApplication>True</IsWindowsApplication>
+    <InterpreterPath>
+    </InterpreterPath>
+    <InterpreterId>CondaEnv|CondaEnv|py2718</InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="downloaders.py" />
+    <Compile Include="downloadmanager.py" />
+    <Compile Include="formats.py" />
+    <Compile Include="info.py" />
+    <Compile Include="logmanager.py" />
+    <Compile Include="mainframe.py" />
+    <Compile Include="optionsframe.py" />
+    <Compile Include="optionsmanager.py" />
+    <Compile Include="parsers.py" />
+    <Compile Include="updatemanager.py" />
+    <Compile Include="utils.py" />
+    <Compile Include="version.py" />
+    <Compile Include="widgets.py" />
+    <Compile Include="__init__.py" />
+    <Compile Include="__main__.pyw" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="data\icons\hicolor\128x128\apps\youtube-dl-gui.png" />
+    <Content Include="data\icons\hicolor\16x16\apps\youtube-dl-gui.png" />
+    <Content Include="data\icons\hicolor\256x256\apps\youtube-dl-gui.png" />
+    <Content Include="data\icons\hicolor\32x32\apps\youtube-dl-gui.png" />
+    <Content Include="data\icons\hicolor\48x48\apps\youtube-dl-gui.png" />
+    <Content Include="data\icons\hicolor\64x64\apps\youtube-dl-gui.png" />
+    <Content Include="data\pixmaps\arrow_down_32px.png" />
+    <Content Include="data\pixmaps\arrow_up_32px.png" />
+    <Content Include="data\pixmaps\camera_32px.png" />
+    <Content Include="data\pixmaps\cloud_download_32px.png" />
+    <Content Include="data\pixmaps\delete_32px.png" />
+    <Content Include="data\pixmaps\folder_32px.png" />
+    <Content Include="data\pixmaps\pause_32px.png" />
+    <Content Include="data\pixmaps\play_arrow_32px.png" />
+    <Content Include="data\pixmaps\reload_32px.png" />
+    <Content Include="data\pixmaps\settings_20px.png" />
+    <Content Include="data\pixmaps\stop_32px.png" />
+    <Content Include="data\pixmaps\youtube-dl-gui.ico" />
+    <Content Include="data\pixmaps\youtube-dl-gui.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="data\" />
+    <Folder Include="data\icons\" />
+    <Folder Include="data\icons\hicolor\" />
+    <Folder Include="data\icons\hicolor\128x128\" />
+    <Folder Include="data\icons\hicolor\128x128\apps" />
+    <Folder Include="data\icons\hicolor\16x16\" />
+    <Folder Include="data\icons\hicolor\16x16\apps" />
+    <Folder Include="data\icons\hicolor\256x256\" />
+    <Folder Include="data\icons\hicolor\256x256\apps" />
+    <Folder Include="data\icons\hicolor\32x32\" />
+    <Folder Include="data\icons\hicolor\32x32\apps" />
+    <Folder Include="data\icons\hicolor\48x48\" />
+    <Folder Include="data\icons\hicolor\48x48\apps" />
+    <Folder Include="data\icons\hicolor\64x64\" />
+    <Folder Include="data\icons\hicolor\64x64\apps" />
+    <Folder Include="data\pixmaps" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="CondaEnv|CondaEnv|py2718" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>
