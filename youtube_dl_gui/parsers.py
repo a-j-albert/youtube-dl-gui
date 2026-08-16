@@ -95,6 +95,7 @@ class OptionsParser(object):
             OptionHolder('keep_video', '-k', False),
             OptionHolder('restrict_filenames', '--restrict-filenames', False),
             OptionHolder('save_path', '-o', ''),
+            OptionHolder('home_path', '-P', ''),
             OptionHolder('embed_subs', '--embed-subs', False, ['write_auto_subs', 'write_subs']),
             OptionHolder('to_audio', '-x', False),
             OptionHolder('audio_format', '--audio-format', ''),
@@ -237,7 +238,9 @@ class OptionsParser(object):
         else:
             template = options_dict["output_template"]
 
-        options_dict["save_path"] = os.path.join(save_path, template)
+        # options_dict["save_path"] = os.path.join(save_path, template)
+        options_dict["save_path"] = template
+        options_dict["home_path"] = 'home:' + save_path
 
     def _build_videoformat(self, options_dict):
         """Build the video format.
