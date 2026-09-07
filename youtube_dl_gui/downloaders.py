@@ -16,6 +16,7 @@ import sys
 import locale
 import signal
 import subprocess
+import time
 
 from time import sleep
 from Queue import Queue
@@ -226,7 +227,8 @@ class YoutubeDLDownloader(object):
             if os.name == 'nt':
                 # os.killpg is not available on Windows
                 # See: https://bugs.python.org/issue5115
-                self._proc.kill()
+                #self._proc.kill()
+                os.kill(self._proc.pid, signal.CTRL_C_EVENT)
 
                 # When we kill the child process on Windows the return code
                 # gets set to 1, so we want to reset the return code back to 0
@@ -387,6 +389,15 @@ class YoutubeDLDownloader(object):
         # self._log(new_env)
 
         try:
+            # self._proc = subprocess.Popen(
+            #     [sys.executable, r'C:\github\projects\subprocesses\child.py'],
+            #     stdout=subprocess.PIPE,
+            #     stderr=subprocess.PIPE,
+            #     creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
+            # )
+            # time.sleep(2)
+            # print(self._proc.stderr.read())
+            # print(self._proc.stdout.read())
             self._proc = subprocess.Popen(cmd,
                                           stdout=subprocess.PIPE,
                                           stderr=subprocess.PIPE,
@@ -394,7 +405,8 @@ class YoutubeDLDownloader(object):
                                           startupinfo=info,
                                           env=new_env,
                                           # cwd='C:\\Downloads\\youtube-dl\\',
-                                          cwd='C:\\github\\youtube-dl\\'
+                                          cwd='C:\\github\\youtube-dl\\',
+                                          creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
                                           )
 
         except (ValueError, OSError) as error:
